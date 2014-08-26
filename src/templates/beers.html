@@ -1,0 +1,9 @@
+<div th:include="header">...</div>
+<div id="container">
+	<h3>Browse Beers</h3>
+	<table>
+		 <tr th:each="beer : ${beers}">
+			<td th:text="${beer.name}">Text ...</td>
+		 </tr>
+	 </table>
+</div>
