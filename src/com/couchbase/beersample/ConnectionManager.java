@@ -25,6 +25,7 @@ package com.couchbase.beersample;
 import java.util.ArrayList;
 
 import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -66,23 +67,39 @@ public class ConnectionManager {
 						System.out.println("Success");
 					}
 				}
-			}).flatMap(new Func1<ViewResult, Observable<ViewRow>>(){
-				@Override
-				public Observable<ViewRow> call(ViewResult viewResult){
-					return viewResult.rows();
-				}
 			})
-			.flatMap(new Func1<ViewRow, Observable<JsonDocument>>(){
+			.flatMap(new Func1<ViewResult, Observable<ViewRow>>(){
+			
+					@Override
+					public Observable<ViewRow> call(ViewResult viewResult){
+						return viewResult.rows();
+					}
+				})
+				.flatMap(new Func1<ViewRow, Observable<JsonDocument>>(){
+					@Override
+					public Observable<JsonDocument> call(ViewRow viewRow){
+						return viewRow.document(); 
+					}
+				})	
+			.subscribe(new Subscriber<JsonDocument>(){
+
 				@Override
-				public Observable<JsonDocument> call(ViewRow viewRow){
-					return viewRow.document(); 
+				public void onCompleted() {
+					System.out.print("Completed");
+					
 				}
-			})			
-			.toBlocking()
-			.forEach(new Action1<JsonDocument>(){
-				@Override public void call(JsonDocument viewRow){
+
+				@Override
+				public void onError(Throwable throwable) {
+					System.err.println("Whoops: " + throwable.getMessage());					
+				}
+
+				@Override
+				public void onNext(JsonDocument viewRow) {
 					result.add(viewRow);
+					
 				}
+				
 			});
 			
 		return result;
