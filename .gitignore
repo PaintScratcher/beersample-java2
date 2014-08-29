@@ -1,6 +1,5 @@
 *.class
 target
-.project
 .classpath
 .settings
 org.eclipse.*
