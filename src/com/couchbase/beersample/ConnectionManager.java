@@ -31,6 +31,7 @@ import com.couchbase.client.java.*;
  * of the Couchbase connection.
  */
 public class ConnectionManager {
+	
 	static Cluster cluster = CouchbaseCluster.create();
 	static Observable<Bucket> bucket = cluster.openBucket("beer-sample");
 

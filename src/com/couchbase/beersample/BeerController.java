@@ -1,7 +1,6 @@
 package com.couchbase.beersample;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.*;
 import org.springframework.ui.Model;
@@ -13,6 +12,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 import com.couchbase.client.java.*;
+import com.couchbase.client.java.document.Document;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.view.ViewQuery;
 import com.couchbase.client.java.view.ViewResult;
@@ -21,16 +21,43 @@ import com.couchbase.client.java.view.ViewRow;
 @Controller
 public class BeerController {
 	static Bucket bucket = ConnectionManager.getBucket().toBlocking().single();
-    @RequestMapping("/beers")
-   
-    String beers(Model model) {
+    
+	@RequestMapping("/beers")
+    String beers(Model model, @RequestParam(value = "beer", required = false) String beer) {
+//		System.out.println(this.getBeers());
 	    model.addAttribute("beers",this.getBeers());
 	    return "beers";
     }
     
-	private ArrayList<HashMap> getBeers() {
+    @RequestMapping("/beers/delete")
+    String delete(Model model, @RequestParam(value = "beer", required = false) String beer){
+    	model.addAttribute("beer", this.getBeer(beer).content().toMap());
+    	return "delete";
+    }
+    
+    private JsonDocument getBeer(String id) {
+		JsonDocument response = bucket.get(id).toBlocking().single();
+		return response;
+	}
+
+	@RequestMapping("/beers/edit")
+    @ResponseBody
+    String edit(@RequestParam(value = "beer", required = false) String beer){
+    	
+    	return "edit";
+    }
+    
+    @RequestMapping("/beers/search")
+    @ResponseBody
+    String search(@RequestParam(value = "beer", required = false) String beer){
+    	
+    	return "search";
+    }
+    
+    
+	private ArrayList<JsonDocument> getBeers() {
 		
-		ArrayList<HashMap> beers = new ArrayList<HashMap>();
+		ArrayList<JsonDocument> beers = new ArrayList<JsonDocument>();
 		bucket
 			.query(ViewQuery.from("beer","by_name").limit(20))
 			.doOnNext(new Action1<ViewResult>(){
@@ -53,33 +80,14 @@ public class BeerController {
 				public Observable<JsonDocument> call(ViewRow viewRow){
 					return viewRow.document(); 
 				}
-			})
-//			.timeout(5, TimeUnit.SECONDS)
-			.subscribe(new Subscriber<JsonDocument>(){
-				@Override
-				public void onCompleted(){
-					System.out.println("Observable Complete");
-				}
-				@Override
-				public void onError(Throwable throwable){
-					System.err.println("Whoops: " + throwable.getMessage());
-				}
-				@Override
-				public void onNext(JsonDocument viewRow){
-					HashMap<String, String> beer = new HashMap<String, String>();
-					beer.put("name",viewRow.content().getString("name"));
-					beers.add(beer);
+			})			
+			.toBlocking()
+			.forEach(new Action1<JsonDocument>(){
+				@Override public void call(JsonDocument viewRow){
+					beers.add(viewRow);
 				}
 			});
-			
-//			toBlocking()
-//			.forEach(new Action1<JsonDocument>(){
-//				@Override public void call(JsonDocument viewRow){
-//					HashMap<String, String> beer = new HashMap<String, String>();
-//					beer.put("name",viewRow.content().getString("name"));
-//					beers.add(beer);
-//				}
-//			});
+		
 		return beers;
 	}
 }
