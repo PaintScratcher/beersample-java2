@@ -22,9 +22,17 @@
 
 package com.couchbase.beersample;
 
+import java.util.ArrayList;
+
 import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 import com.couchbase.client.java.*;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.view.ViewQuery;
+import com.couchbase.client.java.view.ViewResult;
+import com.couchbase.client.java.view.ViewRow;
 
 /**
  * The ConnectionManager handles connecting, disconnecting and managing
@@ -33,15 +41,57 @@ import com.couchbase.client.java.*;
 public class ConnectionManager {
 	
 	static Cluster cluster = CouchbaseCluster.create();
-	static Observable<Bucket> bucket = cluster.openBucket("beer-sample");
+	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 
 	public static void disconnect() {
 		cluster.disconnect().toBlocking().single();
 	}
 	
-	 public static Observable<Bucket> getBucket() {
+	 public static Bucket getBucket() {
 		    return bucket;
 	}
+	 
+	 public static ArrayList<JsonDocument> getView(String designDoc, String view) {
+			
+			ArrayList<JsonDocument> result = new ArrayList<JsonDocument>();
+			
+			bucket
+				.query(ViewQuery.from(designDoc, view).limit(20))
+				.doOnNext(new Action1<ViewResult>(){
+					@Override
+					public void call(ViewResult viewResult){
+						if(!viewResult.success()){
+							System.out.println(viewResult.error());
+						}else{
+							System.out.println("Success");
+						}
+					}
+				}).flatMap(new Func1<ViewResult, Observable<ViewRow>>(){
+					@Override
+					public Observable<ViewRow> call(ViewResult viewResult){
+						return viewResult.rows();
+					}
+				})
+				.flatMap(new Func1<ViewRow, Observable<JsonDocument>>(){
+					@Override
+					public Observable<JsonDocument> call(ViewRow viewRow){
+						return viewRow.document(); 
+					}
+				})			
+				.toBlocking()
+				.forEach(new Action1<JsonDocument>(){
+					@Override public void call(JsonDocument viewRow){
+						result.add(viewRow);
+					}
+				});
+			
+			return result;
+		}
+	 
+	 public static JsonDocument getItem(String id) {
+			JsonDocument response = bucket.get(id).toBlocking().single();
+			return response;
+		}
 	 
 //	 public static closeBucket(){
 //		 Observable<Boolean> close = bucket.close();

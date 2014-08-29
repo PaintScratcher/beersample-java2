@@ -6,7 +6,7 @@
 			<td>Name</td><td>Brewery</td>
 		</tr>
 		<tr th:each="beer : ${beers}">
-			<td><a th:href="@{/beers/(beer=${beer.content().toMap().name})}" th:text="${beer.content().toMap().brewery_id}">text</a></td>
+			<td><a th:href="@{/beers/(beer=${beer.id()})}" th:text="${beer.content().toMap().brewery_id}">text</a></td>
 			<td>Edit</td><td>Delete</td>
 		</tr>
 	 </table>

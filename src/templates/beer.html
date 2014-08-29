@@ -1,0 +1,13 @@
+<div th:include="header">...</div>
+<div id="container">
+	<h2 th:text="@{Show Details for Beer (${beer.name})}">beer name</h2>
+	<table>
+		<tr>
+			<td>Name</td><td>Brewery</td>
+		</tr>
+		<tr th:each="item : ${beer}">
+			<td th:text="${item.getKey()}">text</td>
+			<td th:text="${item.getValue()}">text</td>
+		</tr>
+	 </table>
+</div>
