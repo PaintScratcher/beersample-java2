@@ -41,6 +41,14 @@ import com.couchbase.client.java.view.ViewRow;
  */
 public class ConnectionManager {
 	
+	private static final ConnectionManager connectionManager = new ConnectionManager();
+	private ConnectionManager(){};
+	
+	public static ConnectionManager getInstance() {
+        return connectionManager;
+    }
+	
+	
 	static Cluster cluster = CouchbaseCluster.create();
 	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 
@@ -55,7 +63,6 @@ public class ConnectionManager {
 	 public static ArrayList<JsonDocument> getView(String designDoc, String view) {
 			
 		ArrayList<JsonDocument> result = new ArrayList<JsonDocument>();
-		
 		bucket
 			.query(ViewQuery.from(designDoc, view).limit(20))
 			.doOnNext(new Action1<ViewResult>(){
@@ -96,12 +103,12 @@ public class ConnectionManager {
 
 				@Override
 				public void onNext(JsonDocument viewRow) {
-					result.add(viewRow);
-					
+					System.out.println("Next");
+					result.add(viewRow);	
 				}
 				
 			});
-			
+
 		return result;
 		}
 	 
