@@ -10,7 +10,7 @@ public class BeerController {
     
 	@RequestMapping("/beers")
     String beers(Model model, @RequestParam(value = "beer", required = false) String beer) {
-//		System.out.println(this.getBeers());
+
 		if (beer != null && !beer.isEmpty()) {
 			model.addAttribute("beer", ConnectionManager.getItem(beer).content().toMap());
 			return "beer";
@@ -22,22 +22,20 @@ public class BeerController {
     }
     
     @RequestMapping("/beers/delete")
-    String delete(Model model, @RequestParam(value = "beer", required = false) String beer){
-    	model.addAttribute("beer", ConnectionManager.getItem(beer).content().toMap());
-    	return "delete";
+    String delete(Model model, @RequestParam(value = "beer", required = true) String beer){
+    	ConnectionManager.deleteItem(beer);
+    	model.addAttribute("deleted","Beer Deleted");
+    	return "beers";
     }
 
 	@RequestMapping("/beers/edit")
-    @ResponseBody
-    String edit(@RequestParam(value = "beer", required = false) String beer){
-    	
+    String edit(Model model, @RequestParam(value = "beer", required = true) String beer){
+		model.addAttribute("beer", ConnectionManager.getItem(beer).content().toMap());
     	return "edit";
     }
     
     @RequestMapping("/beers/search")
-    @ResponseBody
     String search(@RequestParam(value = "beer", required = false) String beer){
-    	
     	return "search";
     }
 }

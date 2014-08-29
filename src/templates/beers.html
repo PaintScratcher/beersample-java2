@@ -1,13 +1,14 @@
 <div th:include="header">...</div>
 <div id="container">
 	<h3>Browse Beers</h3>
+	<hp th:text="${deleted}">beer name</p>
 	<table>
 		<tr>
 			<td>Name</td><td>Brewery</td>
 		</tr>
 		<tr th:each="beer : ${beers}">
 			<td><a th:href="@{/beers/(beer=${beer.id()})}" th:text="${beer.content().toMap().brewery_id}">text</a></td>
-			<td>Edit</td><td>Delete</td>
+			<td>Edit</td><td><a th:href="@{/beers/delete/(beer=${beer.id()})}">Delete</a></td>
 		</tr>
 	 </table>
 </div>

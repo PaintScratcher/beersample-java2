@@ -53,47 +53,52 @@ public class ConnectionManager {
 	 
 	 public static ArrayList<JsonDocument> getView(String designDoc, String view) {
 			
-			ArrayList<JsonDocument> result = new ArrayList<JsonDocument>();
+		ArrayList<JsonDocument> result = new ArrayList<JsonDocument>();
+		
+		bucket
+			.query(ViewQuery.from(designDoc, view).limit(20))
+			.doOnNext(new Action1<ViewResult>(){
+				@Override
+				public void call(ViewResult viewResult){
+					if(!viewResult.success()){
+						System.out.println(viewResult.error());
+					}else{
+						System.out.println("Success");
+					}
+				}
+			}).flatMap(new Func1<ViewResult, Observable<ViewRow>>(){
+				@Override
+				public Observable<ViewRow> call(ViewResult viewResult){
+					return viewResult.rows();
+				}
+			})
+			.flatMap(new Func1<ViewRow, Observable<JsonDocument>>(){
+				@Override
+				public Observable<JsonDocument> call(ViewRow viewRow){
+					return viewRow.document(); 
+				}
+			})			
+			.toBlocking()
+			.forEach(new Action1<JsonDocument>(){
+				@Override public void call(JsonDocument viewRow){
+					result.add(viewRow);
+				}
+			});
 			
-			bucket
-				.query(ViewQuery.from(designDoc, view).limit(20))
-				.doOnNext(new Action1<ViewResult>(){
-					@Override
-					public void call(ViewResult viewResult){
-						if(!viewResult.success()){
-							System.out.println(viewResult.error());
-						}else{
-							System.out.println("Success");
-						}
-					}
-				}).flatMap(new Func1<ViewResult, Observable<ViewRow>>(){
-					@Override
-					public Observable<ViewRow> call(ViewResult viewResult){
-						return viewResult.rows();
-					}
-				})
-				.flatMap(new Func1<ViewRow, Observable<JsonDocument>>(){
-					@Override
-					public Observable<JsonDocument> call(ViewRow viewRow){
-						return viewRow.document(); 
-					}
-				})			
-				.toBlocking()
-				.forEach(new Action1<JsonDocument>(){
-					@Override public void call(JsonDocument viewRow){
-						result.add(viewRow);
-					}
-				});
-			
-			return result;
+		return result;
 		}
 	 
-	 public static JsonDocument getItem(String id) {
-			JsonDocument response = bucket.get(id).toBlocking().single();
-			return response;
-		}
+	public static JsonDocument getItem(String id) {
+		JsonDocument response = bucket.get(id).toBlocking().single();
+		return response;
+	}
 	 
-//	 public static closeBucket(){
-//		 Observable<Boolean> close = bucket.close();
-//	 }
+	public static void deleteItem(String id){
+		System.out.println("Deleting " + id);
+		bucket.remove(id);
+	}
+	 
+	public static void closeBucket(){
+		bucket.close();
+	}
 }
