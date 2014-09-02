@@ -38,11 +38,13 @@ hr {
 #left {
 	width: 350px;
 	float: left;
+	margin-bottom: 50px;
 }
 
 #right {
 	width: 349px;
 	float: right;
+	margin-bottom: 50px;
 }
 
 #footer {

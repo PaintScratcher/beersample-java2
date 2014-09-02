@@ -1,27 +1,36 @@
 <div th:include="header">...</div>
 <div id="container">
-	<h2 th:text="${beer}? |Editing: ${beer.name}| : 'Beer Not Found!'"> beer name</h2>
+	<h3 th:text="${beer}? |Editing: ${beer.name}| : 'Beer Not Found!'"> beer name</h3>
 		<form action="#" th:action="@{/beer/edit/submit}" th:object="${beerModel}" method="post">
 			
-			<h3>General Info</h3>
+			<h4>General Info</h4>
 			<hr />
-			<p>Name: <input type="text" th:field="*{name}"></input></p>
-			<p>Style: <input type="text" th:field="*{style}"></input></p><br />
-			<p>Description: <input type="text" th:field="*{description}"></input></p>
-			<p>Category: <input type="text" th:field="*{category}"></input></p><br />
+			<label>Name</label>
+			<input type="text" th:field="*{name}" />
+			<label>Style</label>
+			<input type="text" th:field="*{style}"/><br />
+			<label>Description</label>
+			<input type="text" th:field="*{description}" />
+			<label>Category</label>
+			<input type="text" th:field="*{category}" /><br />
 			
-			<h3>Details</h3>
+			<h4>Details</h4>
 			<hr />
-			<p>Alcohol(ABV): <input type="text" th:field="*{abv}"></input></p>
-			<p>Beer Color (SRM): <input type="text" th:field="*{srm}"></input></p>
-			<p>Bitterness (IBU): <input type="text" th:field="*{ibu}"></input></p>
-			<p>Universal Product Code (UPC): <input type="text" th:field="*{upc}"></input></p>
+			<label>Alcohol(ABV)</label>
+			<input type="text" th:field="*{abv}" />
+			<label>Beer Color (SRM)</label>
+			<input type="text" th:field="*{srm}" />
+			<label>Bitterness (IBU)</label>
+			<input type="text" th:field="*{ibu}" />
+			<label>Universal Product Code (UPC)</label>
+			<input type="text" th:field="*{upc}" />
 			
-			<h3>Brewery</h3>
+			<h4>Brewery</h4>
 			<hr />
-			<p>Brewery: <input type="text" th:field="*{brewery}"></input></p>
-			<input type="hidden" th:field="*{id}"></input>
-			<input type="submit" value="Save"/>
+			<label>Brewery</label>
+			<input type="text" th:field="*{brewery}" />
+			<input type="hidden" th:field="*{id}"></input><br />
+			<input type="submit" value="Save" class="btn btn-primary"/>
 		</form>		
 </div>
 <div th:include="footer">...</div>
