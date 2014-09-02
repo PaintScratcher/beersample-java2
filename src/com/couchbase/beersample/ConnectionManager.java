@@ -141,6 +141,10 @@ public class ConnectionManager {
 		System.out.println("Deleting " + id);
 		bucket.remove(id);
 	}
+	
+	public static void updateItem(JsonDocument doc){
+		bucket.upsert(doc);
+	}
 	 
 	public static void closeBucket(){
 		bucket.close();

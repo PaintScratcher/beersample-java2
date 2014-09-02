@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonObject;
 
 
 @Controller
@@ -32,26 +33,50 @@ public class BeerController {
 		}
     }
     
-    @RequestMapping("/beers/delete")
+    @RequestMapping("/beer/delete")
     String delete(Model model, @RequestParam(value = "beer", required = true) String beer){
     	connectionManager.deleteItem(beer);
     	model.addAttribute("deleted","Beer Deleted");
     	return "beers";
     }
 
-	@RequestMapping(value = "/beers/edit", method=RequestMethod.GET)
+	@RequestMapping(value = "/beer/edit", method=RequestMethod.GET)
     String editGet(Model model, @RequestParam(value = "beer", required = true) String beer){
 		JsonDocument response = connectionManager.getItem(beer);
 		if (response != null){
-			model.addAttribute("beer", response.content().toMap());
+			Map<String, Object> map = response.content().toMap();
+			model.addAttribute("beer", map);
+			BeerModel beerModel = new BeerModel();
+			beerModel.setId(beer);
+			beerModel.setName(map.get("name").toString());
+			beerModel.setStyle(map.get("style").toString());
+			beerModel.setDescription(map.get("description").toString());
+			beerModel.setCategory(map.get("category").toString());
+			beerModel.setAbv(map.get("abv").toString());
+			beerModel.setSrm(map.get("srm").toString());
+			beerModel.setIbu(map.get("ibu").toString());
+			beerModel.setUpc(map.get("upc").toString());
+			beerModel.setBrewery(map.get("brewery_id").toString());
+			model.addAttribute("beerModel", beerModel);
 		}
     	return "edit";
     }
 	
-	@RequestMapping(value = "/beers/edit", method=RequestMethod.POST)
-    String editPost(Model model){
-		
-		
+	@RequestMapping(value = "/beer/edit/submit", method=RequestMethod.POST)
+    String editPost(Model model, @ModelAttribute(value = "beerModel") BeerModel beerModel){
+		System.out.println(beerModel.getName());
+		JsonObject beer = JsonObject.empty()
+				.put("name", beerModel.getName())
+				.put("style", beerModel.getStyle())
+				.put("description", beerModel.getDescription())
+				.put("abv", beerModel.getAbv())
+				.put("ibu", beerModel.getIbu())
+				.put("srm", beerModel.getSrm())
+				.put("upc", beerModel.getUpc())
+				.put("Brewery", beerModel.getBrewery())
+				.put("type", "beer");
+		JsonDocument doc = JsonDocument.create(beerModel.getId(),beer);
+		connectionManager.updateItem(doc);
     	return "beers";
     }
     
