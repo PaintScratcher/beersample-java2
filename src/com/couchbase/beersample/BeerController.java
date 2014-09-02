@@ -47,7 +47,7 @@ public class BeerController {
 			Map<String, Object> map = response.content().toMap();
 			model.addAttribute("beer", map);
 			BeerModel beerModel = new BeerModel();
-			beerModel.setId(beer);
+			beerModel.setId(response.id());
 			beerModel.setName(map.get("name").toString());
 			beerModel.setStyle(map.get("style").toString());
 			beerModel.setDescription(map.get("description").toString());
@@ -64,7 +64,7 @@ public class BeerController {
 	
 	@RequestMapping(value = "/beer/edit/submit", method=RequestMethod.POST)
     String editPost(Model model, @ModelAttribute(value = "beerModel") BeerModel beerModel){
-		System.out.println(beerModel.getName());
+		System.out.println(beerModel.getId());
 		JsonObject beer = JsonObject.empty()
 				.put("name", beerModel.getName())
 				.put("style", beerModel.getStyle())
@@ -73,9 +73,10 @@ public class BeerController {
 				.put("ibu", beerModel.getIbu())
 				.put("srm", beerModel.getSrm())
 				.put("upc", beerModel.getUpc())
-				.put("Brewery", beerModel.getBrewery())
+				.put("brewery_id", beerModel.getBrewery())
 				.put("type", "beer");
 		JsonDocument doc = JsonDocument.create(beerModel.getId(),beer);
+		System.out.println(doc.toString());
 		connectionManager.updateItem(doc);
     	return "beers";
     }
