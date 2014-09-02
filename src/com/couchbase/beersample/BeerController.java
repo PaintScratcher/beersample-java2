@@ -59,7 +59,7 @@ public class BeerController {
 			beerModel.setBrewery(map.get("brewery_id").toString());
 			model.addAttribute("beerModel", beerModel);
 		}
-    	return "edit";
+    	return "beerEdit";
     }
 	
 	@RequestMapping(value = "/beer/edit/submit", method=RequestMethod.POST)

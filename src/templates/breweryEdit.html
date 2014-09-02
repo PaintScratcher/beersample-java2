@@ -1,0 +1,26 @@
+<div th:include="header">...</div>
+<div id="container">
+	<h2 th:text="${brewery}? |Editing: ${brewery.name}| : 'brewery Not Found!'"> brewery name</h2>
+		<form action="#" th:action="@{/brewery/edit/submit}" th:object="${breweryModel}" method="post">
+			
+			<h3>General Info</h3>
+			<hr />
+			<p>Name: <input type="text" th:field="*{name}"></input></p>
+			<p>Style: <input type="text" th:field="*{style}"></input></p><br />
+			<p>Description: <input type="text" th:field="*{description}"></input></p>
+			<p>Category: <input type="text" th:field="*{category}"></input></p><br />
+			
+			<h3>Details</h3>
+			<hr />
+			<p>Alcohol(ABV): <input type="text" th:field="*{abv}"></input></p>
+			<p>brewery Color (SRM): <input type="text" th:field="*{srm}"></input></p>
+			<p>Bitterness (IBU): <input type="text" th:field="*{ibu}"></input></p>
+			<p>Universal Product Code (UPC): <input type="text" th:field="*{upc}"></input></p>
+			
+			<h3>Brewery</h3>
+			<hr />
+			<p>Brewery: <input type="text" th:field="*{brewery}"></input></p>
+			<input type="submit" value="Save"/>
+		</form>		
+</div>
+<div th:include="footer">...</div>

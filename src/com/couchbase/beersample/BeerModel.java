@@ -3,9 +3,6 @@ package com.couchbase.beersample;
 public class BeerModel{
 	
 	private String name, style, description, category, abv, srm, ibu, upc, brewery, Id;
-	public BeerModel prepareGuestModel() {
-	    return new BeerModel();
-	}
 	
 	public String getName(){
 		return name;
