@@ -56,12 +56,12 @@ public class BreweriesController {
 			breweryModel.setCode(map.get("code").toString());
 			breweryModel.setCountry(map.get("country").toString());
 			breweryModel.setPhone(map.get("phone").toString());
-			breweryModel.setWebsite(map.get("webiste").toString());
+			breweryModel.setWebsite(map.get("website").toString());
 			breweryModel.setAddress(map.get("address").toString());
 			breweryModel.setGeo(map.get("geo").toString());
 			model.addAttribute("breweryModel", breweryModel);
 		}
-    	return "edit";
+    	return "breweryEdit";
     }
 	
 	@RequestMapping(value = "/brewery/edit/submit", method=RequestMethod.POST)

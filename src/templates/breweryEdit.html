@@ -6,20 +6,18 @@
 			<h3>General Info</h3>
 			<hr />
 			<p>Name: <input type="text" th:field="*{name}"></input></p>
-			<p>Style: <input type="text" th:field="*{style}"></input></p><br />
-			<p>Description: <input type="text" th:field="*{description}"></input></p>
-			<p>Category: <input type="text" th:field="*{category}"></input></p><br />
+			<p>Website: <input type="text" th:field="*{website}"></input></p><br />
+			<p>Phone: <input type="text" th:field="*{phone}"></input></p>
+			<p>Country: <input type="text" th:field="*{country}"></input></p><br />
 			
 			<h3>Details</h3>
 			<hr />
-			<p>Alcohol(ABV): <input type="text" th:field="*{abv}"></input></p>
-			<p>brewery Color (SRM): <input type="text" th:field="*{srm}"></input></p>
-			<p>Bitterness (IBU): <input type="text" th:field="*{ibu}"></input></p>
-			<p>Universal Product Code (UPC): <input type="text" th:field="*{upc}"></input></p>
-			
-			<h3>Brewery</h3>
-			<hr />
-			<p>Brewery: <input type="text" th:field="*{brewery}"></input></p>
+			<p>Code: <input type="text" th:field="*{code}"></input></p>
+			<p>Address: <input type="text" th:field="*{address}"></input></p>
+			<p>City: <input type="text" th:field="*{city}"></input></p>
+			<p>Geo: <input type="text" th:field="*{geo}"></input></p>
+			<p>State <input type="text" th:field="*{state}"></input></p>
+
 			<input type="hidden" th:field="*{id}"></input>
 			<input type="submit" value="Save"/>
 		</form>		
