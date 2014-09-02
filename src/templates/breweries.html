@@ -8,7 +8,7 @@
 				<td>Name</td><td>Edit</td><td>Delete</td>
 			</tr>
 			<tr th:each="brewery : ${breweries}">
-				<td><a th:href="@{/breweries/(brewery=${brewery.id()})}" th:text="${brewery.content().toMap().name}">text</a></td>
+				<td><a th:href="@{/breweries/(brewery=${brewery.id()})}" th:text="${brewery.key()}">text</a></td>
 				<td><a class="btn btn-small btn-warning" th:href="@{/brewery/edit/(brewery=${brewery.id()})}">Edit</a></td><td><a class="btn btn-small btn-danger" th:href="@{/brewery/delete/(brewery=${brewery.id()})}">Delete</a></td>
 			</tr>
 		 </table>

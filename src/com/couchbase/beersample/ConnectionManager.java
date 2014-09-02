@@ -33,120 +33,112 @@ import rx.functions.Func1;
 
 import com.couchbase.client.java.*;
 import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.view.ViewQuery;
 import com.couchbase.client.java.view.ViewResult;
 import com.couchbase.client.java.view.ViewRow;
 
 /**
- * The ConnectionManager handles connecting, disconnecting and managing
- * of the Couchbase connection.
+ * The ConnectionManager handles connecting, disconnecting and managing of the
+ * Couchbase connection.
  */
 public class ConnectionManager {
-	
+
 	private static final ConnectionManager connectionManager = new ConnectionManager();
-	private ConnectionManager(){
-		System.out.println("Creating connectionManager");
+
+	private ConnectionManager() {
 	};
-	
+
 	public static ConnectionManager getInstance() {
-        return connectionManager;
-    }
-	
-	
+		return connectionManager;
+	}
+
 	static Cluster cluster = CouchbaseCluster.create();
-	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
+	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking()
+			.single();
 
 	public static void disconnect() {
 		cluster.disconnect().toBlocking().single();
 	}
-	
-	 public static Bucket getBucket() {
-		    return bucket;
+
+	public static Bucket getBucket() {
+		return bucket;
 	}
-	 
-	 public static ArrayList<JsonDocument> getView(String designDoc, String view) {
-		ArrayList<JsonDocument> result = new ArrayList<JsonDocument>();
+
+	public static ArrayList<ViewRow> getView(String designDoc, String view) {
+		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
+		ArrayList<ViewRow> result = new ArrayList<ViewRow>();
 		final CountDownLatch latch = new CountDownLatch(1);
-		System.out.println("NEW METHOD CALL");
-		bucket
-			.query(ViewQuery.from(designDoc, view).limit(20))
-			.doOnNext(new Action1<ViewResult>(){
-				@Override
-				public void call(ViewResult viewResult){
-					if(!viewResult.success()){
-						System.out.println(viewResult.error());
-					}else{
-						System.out.println("Success");
-					}
-				}
-			})
-			.flatMap(new Func1<ViewResult, Observable<ViewRow>>(){
-			
+
+		bucket.query(ViewQuery.from(designDoc, view).limit(20))
+				.doOnNext(new Action1<ViewResult>() {
 					@Override
-					public Observable<ViewRow> call(ViewResult viewResult){
+					public void call(ViewResult viewResult) {
+						if (!viewResult.success()) {
+							System.out.println(viewResult.error());
+						}
+					}
+				}).flatMap(new Func1<ViewResult, Observable<ViewRow>>() {
+
+					@Override
+					public Observable<ViewRow> call(ViewResult viewResult) {
 						System.out.println(viewResult);
 						return viewResult.rows();
 					}
-				})
-				.flatMap(new Func1<ViewRow, Observable<JsonDocument>>(){
+				}).subscribe(new Subscriber<ViewRow>() {
 					@Override
-					public Observable<JsonDocument> call(ViewRow viewRow){
-						return viewRow.document(); 
+					public void onCompleted() {
+						latch.countDown();
+						System.out.print("Completed");
 					}
-				})	
-			.subscribe(new Subscriber<JsonDocument>(){
 
-				@Override
-				public void onCompleted() {
-					 latch.countDown();
-					System.out.print("Completed");
-					
-				}
+					@Override
+					public void onError(Throwable throwable) {
+						System.err.println("Whoops: " + throwable.getMessage());
+					}
 
-				@Override
-				public void onError(Throwable throwable) {
-					System.err.println("Whoops: " + throwable.getMessage());					
-				}
-
-				@Override
-				public void onNext(JsonDocument viewRow) {
-					System.out.println("next");
-					result.add(viewRow);	
-				}
-				
-			});
+					@Override
+					public void onNext(ViewRow viewRow) {
+						result.add(viewRow);
+					}
+				});
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		connectionManager.closeBucket();
 		return result;
-		}
-	 
+	}
+
 	public static JsonDocument getItem(String id) {
+		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 		JsonDocument response = null;
 		try {
 			response = bucket.get(id).toBlocking().single();
 		} catch (NoSuchElementException e) {
-			System.out.println("ERROR: No element with message: " + e.getMessage());
+			System.out.println("ERROR: No element with message: "
+					+ e.getMessage());
 			e.printStackTrace();
 		}
-		
+		connectionManager.closeBucket();
+
 		return response;
 	}
-	 
-	public static void deleteItem(String id){
+
+	public static void deleteItem(String id) {
+		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 		System.out.println("Deleting " + id);
 		bucket.remove(id);
+		connectionManager.closeBucket();
 	}
-	
-	public static void updateItem(JsonDocument doc){
+
+	public static void updateItem(JsonDocument doc) {
+		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 		bucket.upsert(doc);
+		connectionManager.closeBucket();
 	}
-	 
-	public static void closeBucket(){
+
+	public static void closeBucket() {
 		bucket.close();
 	}
 }

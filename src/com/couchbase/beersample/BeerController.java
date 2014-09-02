@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.view.ViewRow;
 
 
 @Controller
@@ -26,7 +27,7 @@ public class BeerController {
 			return "beer";
 			}
 		else{
-			ArrayList<JsonDocument> result = connectionManager.getView("beer", "by_name");
+			ArrayList<ViewRow> result = connectionManager.getView("beer", "by_name");
 			System.out.print(result.size());
 			model.addAttribute("beers", result);
 		    return "beers";
@@ -64,7 +65,6 @@ public class BeerController {
 	
 	@RequestMapping(value = "/beer/edit/submit", method=RequestMethod.POST)
     String editPost(Model model, @ModelAttribute(value = "beerModel") BeerModel beerModel){
-		System.out.println(beerModel.getId());
 		JsonObject beer = JsonObject.empty()
 				.put("name", beerModel.getName())
 				.put("style", beerModel.getStyle())
@@ -76,7 +76,6 @@ public class BeerController {
 				.put("brewery_id", beerModel.getBrewery())
 				.put("type", "beer");
 		JsonDocument doc = JsonDocument.create(beerModel.getId(),beer);
-		System.out.println(doc.toString());
 		connectionManager.updateItem(doc);
     	return "beers";
     }
