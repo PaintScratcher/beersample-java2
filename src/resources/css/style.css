@@ -13,13 +13,14 @@ hr {
 }
 
 #container {
-	height: 75px;
 	width: 700px;
 	margin-left: auto;
 	margin-right:auto;
 }
 
 #header-left {
+	position: relative;
+	top: 15px;
 	float: left;
 	color: #999999;
 	font-family: 'Telex',sans-serif;
@@ -34,21 +35,18 @@ hr {
 	margin-left: 25px;
 }
 
-h2 {
-	font-size: 31.5px;
-	line-height: 40px;
-	font-weight: bold;
-	text-rendering: optimizelegibility;
+#left {
+	width: 350px;
+	float: left;
 }
 
-h3 {
-	font-size: 24.5px;
-	margin: 10px 0;
-	font-family: 'Telex',sans-serif;
-	font-weight: bold;
-	line-height: 20px;
-	color: #317eac;
-	text-rendering: optimizelegibility;
+#right {
+	width: 349px;
+	float: right;
+}
+
+#footer {
+	margin-top: 50px;
 }
 
 @font-face {

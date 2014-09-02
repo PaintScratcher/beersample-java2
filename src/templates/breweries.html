@@ -2,13 +2,16 @@
 <div id="container">
 	<h3>Browse Breweries</h3>
 	<p th:text="${deleted}">brewery name</p>
-	<table>
-		<tr>
-			<td>Name</td><td>Brewery</td>
-		</tr>
-		<tr th:each="brewery : ${breweries}">
-			<td><a th:href="@{/breweries/(brewery=${brewery.id()})}" th:text="${brewery.content().toMap().brewery_id}">text</a></td>
-			<td>Edit</td><td><a th:href="@{/brewery/delete/(brewery=${brewery.id()})}">Delete</a></td>
-		</tr>
-	 </table>
+	<div id="table">
+		<table class="table table-striped">
+			<tr>
+				<td>Name</td><td>Edit</td><td>Delete</td>
+			</tr>
+			<tr th:each="brewery : ${breweries}">
+				<td><a th:href="@{/breweries/(brewery=${brewery.id()})}" th:text="${brewery.content().toMap().name}">text</a></td>
+				<td><a class="btn btn-small btn-warning" th:href="@{/brewery/edit/(brewery=${brewery.id()})}">Edit</a></td><td><a class="btn btn-small btn-danger" th:href="@{/brewery/delete/(brewery=${brewery.id()})}">Delete</a></td>
+			</tr>
+		 </table>
+	</div>
 </div>
+<div th:include="footer">...</div>
