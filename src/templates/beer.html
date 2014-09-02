@@ -1,6 +1,6 @@
 <div th:include="header">...</div>
 <div id="container">
-	<h2 th:text="@{Show Details for Beer (${beer.name})}">beer name</h2>
+	<h2 th:text="${beer}? |Show details for Beer ${beer.name}| : 'Beer Not Found!'"> beer name</h2>
 	<table>
 		<tr>
 			<td>Name</td><td>Brewery</td>

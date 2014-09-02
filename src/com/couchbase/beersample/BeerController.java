@@ -1,6 +1,7 @@
 package com.couchbase.beersample;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.springframework.stereotype.*;
 import org.springframework.ui.Model;
@@ -16,13 +17,17 @@ public class BeerController {
     String beers(Model model, @RequestParam(value = "beer", required = false) String beer) {
 		
 		if (beer != null && !beer.isEmpty()) {
-			model.addAttribute("beer", connectionManager.getItem(beer).content().toMap());
+			JsonDocument response = connectionManager.getItem(beer);
+			if (response != null){
+				model.addAttribute("beer", response.content().toMap());
+			}
+			
 			return "beer";
 			}
 		else{
 			ArrayList<JsonDocument> result = connectionManager.getView("beer", "by_name");
+			System.out.print(result.size());
 			model.addAttribute("beers", result);
-			System.out.println(result.size());
 		    return "beers";
 		}
     }
@@ -34,10 +39,20 @@ public class BeerController {
     	return "beers";
     }
 
-	@RequestMapping("/beers/edit")
-    String edit(Model model, @RequestParam(value = "beer", required = true) String beer){
-		model.addAttribute("beer", connectionManager.getItem(beer).content().toMap());
+	@RequestMapping(value = "/beers/edit", method=RequestMethod.GET)
+    String editGet(Model model, @RequestParam(value = "beer", required = true) String beer){
+		JsonDocument response = connectionManager.getItem(beer);
+		if (response != null){
+			model.addAttribute("beer", response.content().toMap());
+		}
     	return "edit";
+    }
+	
+	@RequestMapping(value = "/beers/edit", method=RequestMethod.POST)
+    String editPost(Model model){
+		
+		
+    	return "beers";
     }
     
     @RequestMapping("/beers/search")

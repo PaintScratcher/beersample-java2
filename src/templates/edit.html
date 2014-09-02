@@ -1,0 +1,26 @@
+<div th:include="header">...</div>
+<div id="container">
+	<h2 th:text="${beer}? |Editing: ${beer.name}| : 'Beer Not Found!'"> beer name</h2>
+		<form action="#" th:action="@{/beer/edit}" th:object="${editResponse}" method="post">
+			
+			<h3>General Info</h3>
+			<hr />
+			<p>Name: <input type="text" name="firstname" the:field="*{name}" th:value="${beer.name}"></input></p>
+			<p>Style: <input type="text" name="style" th:value="${beer.style}"></input></p><br />
+			<p>Description: <input type="text" name="description" th:value="${beer.description}"></input></p>
+			<p>Category: <input type="text" name="category" th:value="${beer.category}"></input></p><br />
+			
+			<h3>Details</h3>
+			<hr />
+			<p>Alcohol(ABV): <input type="text" name="alcohol" th:value="${beer.abv}"></input></p>
+			<p>Beer Color (SRM): <input type="text" name="color" th:value="${beer.srm}"></input></p>
+			<p>Bitterness (IBU): <input type="text" name="bitterness" th:value="${beer.ibu}"></input></p>
+			<p>Universal Product Code (UPC): <input type="text" name="upc" th:value="${beer.upc}"></input></p>
+			
+			<h3>Brewery</h3>
+			<hr />
+			<p>Brewery: <input type="text" name="brewery" th:value="${beer.brewery_id}"></input></p>
+			
+		</form>		
+</div>
+<div th:include="footer">...</div>

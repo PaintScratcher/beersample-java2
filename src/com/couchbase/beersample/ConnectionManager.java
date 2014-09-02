@@ -23,6 +23,8 @@
 package com.couchbase.beersample;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -31,6 +33,7 @@ import rx.functions.Func1;
 
 import com.couchbase.client.java.*;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.view.ViewQuery;
 import com.couchbase.client.java.view.ViewResult;
 import com.couchbase.client.java.view.ViewRow;
@@ -42,7 +45,9 @@ import com.couchbase.client.java.view.ViewRow;
 public class ConnectionManager {
 	
 	private static final ConnectionManager connectionManager = new ConnectionManager();
-	private ConnectionManager(){};
+	private ConnectionManager(){
+		System.out.println("Creating connectionManager");
+	};
 	
 	public static ConnectionManager getInstance() {
         return connectionManager;
@@ -61,8 +66,9 @@ public class ConnectionManager {
 	}
 	 
 	 public static ArrayList<JsonDocument> getView(String designDoc, String view) {
-			
 		ArrayList<JsonDocument> result = new ArrayList<JsonDocument>();
+		final CountDownLatch latch = new CountDownLatch(1);
+		System.out.println("NEW METHOD CALL");
 		bucket
 			.query(ViewQuery.from(designDoc, view).limit(20))
 			.doOnNext(new Action1<ViewResult>(){
@@ -79,6 +85,7 @@ public class ConnectionManager {
 			
 					@Override
 					public Observable<ViewRow> call(ViewResult viewResult){
+						System.out.println(viewResult);
 						return viewResult.rows();
 					}
 				})
@@ -92,6 +99,7 @@ public class ConnectionManager {
 
 				@Override
 				public void onCompleted() {
+					 latch.countDown();
 					System.out.print("Completed");
 					
 				}
@@ -103,17 +111,29 @@ public class ConnectionManager {
 
 				@Override
 				public void onNext(JsonDocument viewRow) {
-					System.out.println("Next");
+					System.out.println("next");
 					result.add(viewRow);	
 				}
 				
 			});
-
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return result;
 		}
 	 
 	public static JsonDocument getItem(String id) {
-		JsonDocument response = bucket.get(id).toBlocking().single();
+		JsonDocument response = null;
+		try {
+			response = bucket.get(id).toBlocking().single();
+		} catch (NoSuchElementException e) {
+			System.out.println("ERROR: No element with message: " + e.getMessage());
+			e.printStackTrace();
+		}
+		
 		return response;
 	}
 	 
