@@ -124,7 +124,7 @@ public class ConnectionManager {
 	}
 
 	public static Observable<JsonDocument> deleteItem(String id) {
-		Observable<JsonDocument> response = bucket.remove(id);
+		Observable<JsonDocument> response = bucket.remove(id, PersistTo.MASTER);
 		System.out.println("Deleting " + id);
 		return response;
 	}
