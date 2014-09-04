@@ -22,7 +22,6 @@
 
 package com.couchbase.beersample;
 
-import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
@@ -47,16 +46,12 @@ public class ConnectionManager {
 
 	private static final ConnectionManager connectionManager = new ConnectionManager();
 
-	private ConnectionManager() {
-	};
-
 	public static ConnectionManager getInstance() {
 		return connectionManager;
 	}
 
 	static Cluster cluster = CouchbaseCluster.create();
-	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking()
-			.single();
+	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 
 	public static void disconnect() {
 		cluster.disconnect().toBlocking().single();
@@ -69,9 +64,9 @@ public class ConnectionManager {
 	public static ArrayList<ViewRow> getView(String designDoc, String view) {
 		ArrayList<ViewRow> result = new ArrayList<ViewRow>();
 		final CountDownLatch latch = new CountDownLatch(1);
-		System.out.println("DOING QUERY");
 
-		bucket.query(ViewQuery.from(designDoc, view).limit(20).stale(Stale.FALSE))
+		bucket.query(
+				ViewQuery.from(designDoc, view).limit(20).stale(Stale.FALSE))
 				.doOnNext(new Action1<ViewResult>() {
 					@Override
 					public void call(ViewResult viewResult) {
@@ -106,7 +101,6 @@ public class ConnectionManager {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println(result.toString());
 		return result;
 	}
 
@@ -119,13 +113,11 @@ public class ConnectionManager {
 					+ e.getMessage());
 			e.printStackTrace();
 		}
-
 		return response;
 	}
 
 	public static Observable<JsonDocument> deleteItem(String id) {
 		Observable<JsonDocument> response = bucket.remove(id, PersistTo.MASTER);
-		System.out.println("Deleting " + id);
 		return response;
 	}
 

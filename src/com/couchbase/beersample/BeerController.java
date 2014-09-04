@@ -49,16 +49,18 @@ public class BeerController {
 			Map<String, Object> map = response.content().toMap();
 			model.addAttribute("beer", map);
 			BeerModel beerModel = new BeerModel();
+
 			beerModel.setId(response.id());
-			beerModel.setName(map.get("name").toString());
-			beerModel.setStyle(map.get("style").toString());
-			beerModel.setDescription(map.get("description").toString());
-			beerModel.setCategory(map.get("category").toString());
-			beerModel.setAbv(map.get("abv").toString());
-			beerModel.setSrm(map.get("srm").toString());
-			beerModel.setIbu(map.get("ibu").toString());
-			beerModel.setUpc(map.get("upc").toString());
-			beerModel.setBrewery(map.get("brewery_id").toString());
+			beerModel.setName(map.getOrDefault("name", "").toString());
+			beerModel.setStyle(map.getOrDefault("style", "").toString());
+			beerModel.setDescription(map.getOrDefault("description", "").toString());
+			beerModel.setCategory(map.getOrDefault("category", "").toString());
+			beerModel.setAbv(map.getOrDefault("abv", "").toString());
+			beerModel.setSrm(map.getOrDefault("srm", "").toString());
+			beerModel.setIbu(map.getOrDefault("ibu", "").toString());
+			beerModel.setUpc(map.getOrDefault("upc", "").toString());
+			beerModel.setBrewery(map.getOrDefault("brewery_id", "").toString());
+			
 			model.addAttribute("beerModel", beerModel);
 		}
     	return "beerEdit";

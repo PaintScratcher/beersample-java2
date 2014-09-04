@@ -2,7 +2,7 @@ package com.couchbase.beersample;
 
 public class BreweryModel {
 	
-	private String name, city, state, code, country, phone, website, description, address, geo, Id;
+	private String name, city, state, code, country, phone, website, description, address, geo, Id = "";
 
 	public String getName() {
 		return name;
