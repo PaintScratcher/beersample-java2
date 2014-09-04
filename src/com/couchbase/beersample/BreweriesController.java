@@ -28,7 +28,6 @@ public class BreweriesController {
 			}
 		else{
 			ArrayList<ViewRow> result = connectionManager.getView("brewery", "by_name");
-			System.out.print(result.size());
 			model.addAttribute("breweries", result);
 		    return "breweries";
 		}
@@ -36,8 +35,10 @@ public class BreweriesController {
     
     @RequestMapping("/brewery/delete")
     String delete(Model model, @RequestParam(value = "brewery", required = true) String brewery){
-    	connectionManager.deleteItem(brewery);
-    	model.addAttribute("deleted","brewery Deleted");
+    	connectionManager.deleteItem(brewery).toBlocking().single();
+    	model.addAttribute("deleted","Brewery Deleted");
+    	ArrayList<ViewRow> result = connectionManager.getView("brewery", "by_name");
+		model.addAttribute("breweries", result);
     	return "breweries";
     }
 
@@ -66,7 +67,6 @@ public class BreweriesController {
 	
 	@RequestMapping(value = "/brewery/edit/submit", method=RequestMethod.POST)
     String editPost(Model model, @ModelAttribute(value = "breweryModel") BreweryModel breweryModel){
-		System.out.println(breweryModel.getName());
 		JsonObject brewery = JsonObject.empty()
 				.put("name", breweryModel.getName())
 				.put("city", breweryModel.getCity())
@@ -81,7 +81,7 @@ public class BreweriesController {
 				.put("type", "brewery");
 		JsonDocument doc = JsonDocument.create(breweryModel.getId(),brewery);
 		connectionManager.updateItem(doc);
-    	return "breweries";
+    	return "redirect:/breweries/?brewery=" + breweryModel.getId();
     }
     
     @RequestMapping("/breweries/search")

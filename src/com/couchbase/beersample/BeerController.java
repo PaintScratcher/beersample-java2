@@ -78,7 +78,8 @@ public class BeerController {
 				.put("type", "beer");
 		JsonDocument doc = JsonDocument.create(beerModel.getId(),beer);
 		connectionManager.updateItem(doc);
-    	return "beers";
+		
+    	return "redirect:/beers/?beer=" + beerModel.getId();
     }
     
     @RequestMapping("/beers/search")

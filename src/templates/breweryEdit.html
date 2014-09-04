@@ -1,6 +1,7 @@
 <div th:include="header">...</div>
 <div id="container">
 	<h3 th:text="${brewery}? |Editing: ${brewery.name}| : 'brewery Not Found!'"> brewery name</h3>
+	<p th:text="${updated}">brewery name</p>
 		<form action="#" th:action="@{/brewery/edit/submit}" th:object="${breweryModel}" method="post">
 			
 			<h4>General Info</h4>
