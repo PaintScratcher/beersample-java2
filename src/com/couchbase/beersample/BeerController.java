@@ -28,7 +28,6 @@ public class BeerController {
 			}
 		else{
 			ArrayList<ViewRow> result = connectionManager.getView("beer", "by_name");
-			System.out.print(result.size());
 			model.addAttribute("beers", result);
 		    return "beers";
 		}
@@ -36,8 +35,10 @@ public class BeerController {
     
     @RequestMapping("/beer/delete")
     String delete(Model model, @RequestParam(value = "beer", required = true) String beer){
-    	connectionManager.deleteItem(beer);
+    	connectionManager.deleteItem(beer).toBlocking().single();
     	model.addAttribute("deleted","Beer Deleted");
+    	ArrayList<ViewRow> result = connectionManager.getView("beer", "by_name");
+		model.addAttribute("beers", result);
     	return "beers";
     }
 

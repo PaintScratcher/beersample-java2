@@ -22,6 +22,7 @@
 
 package com.couchbase.beersample;
 
+import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
@@ -33,6 +34,7 @@ import rx.functions.Func1;
 
 import com.couchbase.client.java.*;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.view.Stale;
 import com.couchbase.client.java.view.ViewQuery;
 import com.couchbase.client.java.view.ViewResult;
 import com.couchbase.client.java.view.ViewRow;
@@ -65,11 +67,11 @@ public class ConnectionManager {
 	}
 
 	public static ArrayList<ViewRow> getView(String designDoc, String view) {
-		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 		ArrayList<ViewRow> result = new ArrayList<ViewRow>();
 		final CountDownLatch latch = new CountDownLatch(1);
+		System.out.println("DOING QUERY");
 
-		bucket.query(ViewQuery.from(designDoc, view).limit(20))
+		bucket.query(ViewQuery.from(designDoc, view).limit(20).stale(Stale.FALSE))
 				.doOnNext(new Action1<ViewResult>() {
 					@Override
 					public void call(ViewResult viewResult) {
@@ -81,14 +83,12 @@ public class ConnectionManager {
 
 					@Override
 					public Observable<ViewRow> call(ViewResult viewResult) {
-						System.out.println(viewResult);
 						return viewResult.rows();
 					}
 				}).subscribe(new Subscriber<ViewRow>() {
 					@Override
 					public void onCompleted() {
 						latch.countDown();
-						System.out.print("Completed");
 					}
 
 					@Override
@@ -106,12 +106,11 @@ public class ConnectionManager {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		connectionManager.closeBucket();
+		System.out.println(result.toString());
 		return result;
 	}
 
 	public static JsonDocument getItem(String id) {
-		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 		JsonDocument response = null;
 		try {
 			response = bucket.get(id).toBlocking().single();
@@ -120,22 +119,18 @@ public class ConnectionManager {
 					+ e.getMessage());
 			e.printStackTrace();
 		}
-		connectionManager.closeBucket();
 
 		return response;
 	}
 
-	public static void deleteItem(String id) {
-		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
+	public static Observable<JsonDocument> deleteItem(String id) {
+		Observable<JsonDocument> response = bucket.remove(id);
 		System.out.println("Deleting " + id);
-		bucket.remove(id);
-		connectionManager.closeBucket();
+		return response;
 	}
 
 	public static void updateItem(JsonDocument doc) {
-		Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
 		bucket.upsert(doc);
-		connectionManager.closeBucket();
 	}
 
 	public static void closeBucket() {
