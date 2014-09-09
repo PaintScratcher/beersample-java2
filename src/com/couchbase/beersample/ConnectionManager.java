@@ -117,7 +117,14 @@ public class ConnectionManager {
 	}
 
 	public static Observable<JsonDocument> deleteItem(String id) {
-		Observable<JsonDocument> response = bucket.remove(id, PersistTo.MASTER);
+		Observable<JsonDocument> response = null;
+		try {
+			response = bucket.remove(id, PersistTo.MASTER);
+		} catch (NoSuchElementException e){
+			System.out.println("ERROR: No element with message: " 
+					+ e.getMessage());
+			e.printStackTrace();
+		}
 		return response;
 	}
 
