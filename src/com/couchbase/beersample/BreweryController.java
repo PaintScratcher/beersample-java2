@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.view.AsyncViewRow;
 import com.couchbase.client.java.view.ViewRow;
 
 
@@ -41,7 +42,7 @@ public class BreweryController {
     String breweries(Model model, @RequestParam(value = "brewery", required = false) String brewery) {
 		
 		if (brewery != null && !brewery.isEmpty()) {
-			JsonDocument response = connectionManager.getItem(brewery);
+			JsonDocument response = ConnectionManager.getItem(brewery);
 			if (response != null){
 				model.addAttribute("brewery", response.content().toMap());
 			}
@@ -49,7 +50,7 @@ public class BreweryController {
 			return "brewery";
 			}
 		else{
-			ArrayList<ViewRow> result = connectionManager.getView("brewery", "by_name");
+			ArrayList<AsyncViewRow> result = ConnectionManager.getView("brewery", "by_name");
 			model.addAttribute("breweries", result);
 		    return "breweries";
 		}
@@ -57,16 +58,16 @@ public class BreweryController {
     
     @RequestMapping("/brewery/delete")
     String delete(Model model, @RequestParam(value = "brewery", required = true) String brewery){
-    	connectionManager.deleteItem(brewery).toBlocking().single();
+    	ConnectionManager.deleteItem(brewery);
     	model.addAttribute("deleted","Brewery Deleted");
-    	ArrayList<ViewRow> result = connectionManager.getView("brewery", "by_name");
+    	ArrayList<AsyncViewRow> result = ConnectionManager.getView("brewery", "by_name");
 		model.addAttribute("breweries", result);
     	return "breweries";
     }
 
 	@RequestMapping(value = "/brewery/edit", method=RequestMethod.GET)
     String editGet(Model model, @RequestParam(value = "brewery", required = true) String brewery){
-		JsonDocument response = connectionManager.getItem(brewery);
+		JsonDocument response = ConnectionManager.getItem(brewery);
 		if (response != null){
 			Map<String, Object> map = response.content().toMap();
 			model.addAttribute("brewery", map);
@@ -104,7 +105,7 @@ public class BreweryController {
 				.put("geo", breweryModel.getGeo())
 				.put("type", "brewery");
 		JsonDocument doc = JsonDocument.create(breweryModel.getId(),brewery);
-		connectionManager.updateItem(doc);
+		ConnectionManager.updateItem(doc);
     	return "redirect:/breweries/?brewery=" + breweryModel.getId();
     }
     

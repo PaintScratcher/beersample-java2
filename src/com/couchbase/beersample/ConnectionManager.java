@@ -33,10 +33,10 @@ import rx.functions.Func1;
 
 import com.couchbase.client.java.*;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.view.AsyncViewResult;
+import com.couchbase.client.java.view.AsyncViewRow;
 import com.couchbase.client.java.view.Stale;
 import com.couchbase.client.java.view.ViewQuery;
-import com.couchbase.client.java.view.ViewResult;
-import com.couchbase.client.java.view.ViewRow;
 
 /**
  * The ConnectionManager handles connecting, disconnecting and managing of the
@@ -51,48 +51,41 @@ public class ConnectionManager {
 	}
 
 	static Cluster cluster = CouchbaseCluster.create();
-	static Bucket bucket = cluster.openBucket("beer-sample").toBlocking().single();
+	static Bucket bucket = cluster.openBucket("beer-sample");
 
 	public static void disconnect() {
-		cluster.disconnect().toBlocking().single();
+		cluster.disconnect();
 	}
 
-	public static Bucket getBucket() {
-		return bucket;
-	}
-
-	public static ArrayList<ViewRow> getView(String designDoc, String view) {
-		ArrayList<ViewRow> result = new ArrayList<ViewRow>();
+	public static ArrayList<AsyncViewRow> getView(String designDoc, String view) {
+		ArrayList<AsyncViewRow> result = new ArrayList<AsyncViewRow>();
 		final CountDownLatch latch = new CountDownLatch(1);
 
-		bucket.query(
+		bucket.async().query(
 				ViewQuery.from(designDoc, view).limit(20).stale(Stale.FALSE))
-				.doOnNext(new Action1<ViewResult>() {
+				.doOnNext(new Action1<AsyncViewResult>() {
 					@Override
-					public void call(ViewResult viewResult) {
+					public void call(AsyncViewResult viewResult) {
 						if (!viewResult.success()) {
 							System.out.println(viewResult.error());
 						}
 					}
-				}).flatMap(new Func1<ViewResult, Observable<ViewRow>>() {
-
+				}).flatMap(new Func1<AsyncViewResult, Observable<AsyncViewRow>>() {
 					@Override
-					public Observable<ViewRow> call(ViewResult viewResult) {
+					public Observable<AsyncViewRow> call(AsyncViewResult viewResult) {
 						return viewResult.rows();
 					}
-				}).subscribe(new Subscriber<ViewRow>() {
+				}).subscribe(new Subscriber<AsyncViewRow>() {
 					@Override
 					public void onCompleted() {
 						latch.countDown();
 					}
-
 					@Override
 					public void onError(Throwable throwable) {
 						System.err.println("Whoops: " + throwable.getMessage());
 					}
-
 					@Override
-					public void onNext(ViewRow viewRow) {
+					public void onNext(AsyncViewRow viewRow) {
 						result.add(viewRow);
 					}
 				});
@@ -107,7 +100,7 @@ public class ConnectionManager {
 	public static JsonDocument getItem(String id) {
 		JsonDocument response = null;
 		try {
-			response = bucket.get(id).toBlocking().single();
+			response = bucket.get(id);
 		} catch (NoSuchElementException e) {
 			System.out.println("ERROR: No element with message: "
 					+ e.getMessage());
@@ -116,16 +109,13 @@ public class ConnectionManager {
 		return response;
 	}
 
-	public static Observable<JsonDocument> deleteItem(String id) {
-		Observable<JsonDocument> response = null;
+	public static void deleteItem(String id) {
 		try {
-			response = bucket.remove(id, PersistTo.MASTER);
+			bucket.remove(id, PersistTo.MASTER);
 		} catch (NoSuchElementException e){
 			System.out.println("ERROR: No element with message: " 
 					+ e.getMessage());
-			e.printStackTrace();
 		}
-		return response;
 	}
 
 	public static void updateItem(JsonDocument doc) {

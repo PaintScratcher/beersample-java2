@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.view.AsyncViewRow;
 import com.couchbase.client.java.view.ViewRow;
 
 
@@ -41,7 +42,7 @@ public class BeerController {
     String beers(Model model, @RequestParam(value = "beer", required = false) String beer) {
 		
 		if (beer != null && !beer.isEmpty()) {
-			JsonDocument response = connectionManager.getItem(beer);
+			JsonDocument response = ConnectionManager.getItem(beer);
 			if (response != null){
 				model.addAttribute("beer", response.content().toMap());
 			}
@@ -49,7 +50,7 @@ public class BeerController {
 			return "beer";
 			}
 		else{
-			ArrayList<ViewRow> result = connectionManager.getView("beer", "by_name");
+			ArrayList<AsyncViewRow> result = ConnectionManager.getView("beer", "by_name");
 			model.addAttribute("beers", result);
 		    return "beers";
 		}
@@ -57,16 +58,16 @@ public class BeerController {
     
     @RequestMapping("/beer/delete")
     String delete(Model model, @RequestParam(value = "beer", required = true) String beer){
-    	connectionManager.deleteItem(beer).toBlocking().single();
+    	ConnectionManager.deleteItem(beer);
     	model.addAttribute("deleted","Beer Deleted");
-    	ArrayList<ViewRow> result = connectionManager.getView("beer", "by_name");
+    	ArrayList<AsyncViewRow> result = ConnectionManager.getView("beer", "by_name");
 		model.addAttribute("beers", result);
     	return "beers";
     }
 
 	@RequestMapping(value = "/beer/edit", method=RequestMethod.GET)
     String editGet(Model model, @RequestParam(value = "beer", required = true) String beer){
-		JsonDocument response = connectionManager.getItem(beer);
+		JsonDocument response = ConnectionManager.getItem(beer);
 		if (response != null){
 			Map<String, Object> map = response.content().toMap();
 			model.addAttribute("beer", map);
@@ -101,7 +102,7 @@ public class BeerController {
 				.put("brewery_id", beerModel.getBrewery())
 				.put("type", "beer");
 		JsonDocument doc = JsonDocument.create(beerModel.getId(),beer);
-		connectionManager.updateItem(doc);
+		ConnectionManager.updateItem(doc);
 		
     	return "redirect:/beers/?beer=" + beerModel.getId();
     }
